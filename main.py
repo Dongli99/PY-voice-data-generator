@@ -32,7 +32,7 @@ class VoiceDataGenerator:
 
         Args:
             duration (int): The duration of the voice data in 1/10 seconds.
-            gender (str): The gender of the voice data ('M' for male, 'F' for female).
+            gender (str): The gender of the voice data ('M' for male, all else will be treated as female).
             noise (int): The level of noise to be added to the voice data.
             tune_pitch (int): Adjustment to the mean pitch for relatively higher or lower individuals.
             tune_pitch_sd (int): Adjustment to the pitch standard deviation.
@@ -171,6 +171,6 @@ class VoiceDataGenerator:
 
 if __name__ == "__main__":
     # set parameters you want, or leave default
-    voice_generator = VoiceDataGenerator(duration=400, gender="M")
+    voice_generator = VoiceDataGenerator()
     print(voice_generator.data)  # print the data.
-    voice_generator.plot()  # plot the data, reflection is shown in default
+    voice_generator.plot(False)  # plot the data, reflection is shown in default
