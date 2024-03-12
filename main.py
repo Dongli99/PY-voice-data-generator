@@ -38,7 +38,7 @@ class VoiceDataGenerator:
             tune_pitch_sd (int): Adjustment to the pitch standard deviation.
         """
         self.duration = duration
-        self.gender = gender
+        self.gender = gender if gender in ("M", "F") else "F"
         self.tune_pitch = tune_pitch
         self.tune_pitch_sd = tune_pitch_sd
         self._pitch_mean = (
@@ -171,6 +171,6 @@ class VoiceDataGenerator:
 
 if __name__ == "__main__":
     # set parameters you want, or leave default
-    voice_generator = VoiceDataGenerator()
+    voice_generator = VoiceDataGenerator(gender="ddd")
     print(voice_generator.data)  # print the data.
     voice_generator.plot(False)  # plot the data, reflection is shown in default
