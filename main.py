@@ -95,8 +95,8 @@ class VoiceDataGenerator:
         while duration > 0:
 
             elapse = round(
-                self._normal() * 90 + 10 if talking else self._normal() * 50 + 10
-            )  # when talking, takes a longer time. each state last at least 1 seconds
+                self._normal() * 90 + 10 if talking else self._normal() * 55 + 5
+            )  # when talking, takes a longer time. each state last at least 1 or 0.5 seconds
             # cut the voice if longer than duration left
             elapse = duration if elapse > duration else elapse
             frequencies.extend(
@@ -210,5 +210,6 @@ if __name__ == "__main__":
     # set parameters you want, or leave default
     voice_generator = VoiceDataGenerator(gender="F", broadcast=True)
     data = voice_generator.data
+    print(data.shape)
     # plot the data, reflection is shown in default
-    voice_generator.plot(reflection=False)
+    voice_generator.plot()
