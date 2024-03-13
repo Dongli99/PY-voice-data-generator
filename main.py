@@ -15,6 +15,7 @@ class VoiceDataGenerator:
         tune_pitch_sd (int): Adjustment to the pitch standard deviation.
         _pitch_mean (int): Mean pitch value.
         _pitch_sd (int): Pitch standard deviation value.
+        _broadcast (bool): Print the process of talking in command line.
         __data (numpy.ndarray): Array to store the generated voice data.
     """
 
@@ -25,17 +26,23 @@ class VoiceDataGenerator:
     }  # Pitch standard deviation for male and female
 
     def __init__(
-        self, duration=300, gender="M", noise=40, tune_pitch=0, tune_pitch_sd=0
+        self,
+        duration=300,
+        gender="M",
+        noise=40,
+        tune_pitch=0,
+        tune_pitch_sd=0,
+        broadcast=False,
     ) -> None:
         """
         Initializes the VoiceDataGenerator object.
-
         Args:
             duration (int): The duration of the voice data in 1/10 seconds.
             gender (str): The gender of the voice data ('M' for male, all else will be treated as female).
-            noise (int): The level of noise to be added to the voice data.
+            noise (int): The level of noise to be added to the background of voice data.
             tune_pitch (int): Adjustment to the mean pitch for relatively higher or lower individuals.
             tune_pitch_sd (int): Adjustment to the pitch standard deviation.
+            broadcast (bool): Print the process of talking in command line.
         """
         self.duration = duration
         self.gender = gender if gender in ("M", "F") else "F"
@@ -48,6 +55,7 @@ class VoiceDataGenerator:
             VoiceDataGenerator.PITCH_STANDARD_DEVIATION.get(self.gender)
             + self.tune_pitch_sd
         )
+        self._broadcast = broadcast
         self.noise = noise
         self.__data = self.generate_data()
 
@@ -57,7 +65,11 @@ class VoiceDataGenerator:
         return self.__data
 
     def generate_data(self):
-        """Generates synthetic voice data."""
+        """
+        Generates synthetic voice data.
+        Returns:
+            numpy.ndarray: data generated.
+        """
         x = np.arange(0, self.duration)
         y = self._talk_flow(self.duration)
         return np.column_stack((x, y))
@@ -65,7 +77,7 @@ class VoiceDataGenerator:
     def _skip_invert(self, ls):
         """Inverts every second value of the input list."""
         ls = np.array(ls)
-        ls[::2] *= -1
+        ls[::2] *= -1  # skip setting sign to negative.
         return ls
 
     def _talk_flow(self, duration):
@@ -77,15 +89,23 @@ class VoiceDataGenerator:
             list: List of frequencies.
         """
         frequencies = []
-        talking = self._normal() > 0.5
+        talking = (
+            self._normal() > 0.5
+        )  # random the bool value representing talking state
         while duration > 0:
-            elapse = round(self._normal() * 90 + 10 if talking else self._normal() * 60)
+
+            elapse = round(
+                self._normal() * 90 + 10 if talking else self._normal() * 50 + 10
+            )  # when talking, takes a longer time. each state last at least 1 seconds
+            # cut the voice if longer than duration left
             elapse = duration if elapse > duration else elapse
             frequencies.extend(
                 self._sentence(elapse) if talking else self._silence(elapse)
             )
-            duration -= elapse
-            talking = not talking
+            duration -= elapse  # update duration
+            if self._broadcast:  # print the role, state and elapse of time
+                self._print_record(self.gender, talking, elapse)
+            talking = not talking  # switch state
         return frequencies
 
     def _sentence(self, duration):
@@ -101,18 +121,19 @@ class VoiceDataGenerator:
             elapse = round((self._normal() + 0.5) * 1.5)
             if elapse > duration:
                 elapse = duration
-            frequencies.extend(self._word(elapse))
+            frequencies.extend(self._syllable(elapse))
             duration -= elapse
         return frequencies
 
-    def _word(self, duration):
+    def _syllable(self, duration):
         """
-        Simulates a word being spoken.
+        Simulates a syllable being spoken.
         Args:
-            duration (int): The duration of the word.
+            duration (int): The duration of the syllable.
         Returns:
             list: List of frequencies.
         """
+        # syllable follows gauss distribution
         return [self._gauss(self._pitch_mean, self._pitch_sd) for _ in range(duration)]
 
     def _silence(self, duration):
@@ -168,9 +189,26 @@ class VoiceDataGenerator:
         plt.plot(x, y)
         plt.show()
 
+    def _print_record(self, role, talking, elapse):
+        """
+        Print a record of voice activity.
+        Parameters:
+            role (str): The gender role, either 'M' for male or 'F' for female.
+            talking (bool): True if the voice is active (talking), False if inactive (silent).
+            elapse (int): The duration of the voice activity in tenths of a second.
+        """
+        record = (
+            "The "
+            + ("man" if role == "M" else "Female")
+            + (" talked " if talking else " kept silence ")
+            + f"for {elapse/10} seconds."
+        )
+        print(record)
+
 
 if __name__ == "__main__":
     # set parameters you want, or leave default
-    voice_generator = VoiceDataGenerator(gender="ddd")
-    print(voice_generator.data)  # print the data.
-    voice_generator.plot(False)  # plot the data, reflection is shown in default
+    voice_generator = VoiceDataGenerator(gender="F", broadcast=True)
+    data = voice_generator.data
+    # plot the data, reflection is shown in default
+    voice_generator.plot(reflection=False)
