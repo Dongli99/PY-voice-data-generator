@@ -212,4 +212,4 @@ if __name__ == "__main__":
     data = voice_generator.data
     print(data.shape)
     # plot the data, reflection is shown in default
-    voice_generator.plot()
+    voice_generator.plot(reflection=False)

@@ -12,6 +12,14 @@
 
 Voice Data Generator is a Python tool for simulating voice data with customizable parameters such as pitch, duration, and noise. This tool is designed for various applications, including speech analysis, machine learning training data generation, and audio signal processing experimentation.
 
+**Sister projects:**
+
+- [Gauge](https://github.com/Dongli99/PY-gui-gauge)  <image src="gauge.png" style="width:5%">
+  - A customizable graphical representation of a gauge.  
+
+- [DynamicChart](https://github.com/Dongli99/PY-dynamic-chart)  <image src="chart.png" style="width:7%">
+  - Displays a dynamic chart with real-time data visualization.  
+
 ## Features
 
 - Generate synthetic voice data with specified pitch, duration, and noise levels.
